@@ -3,13 +3,14 @@ import { useParams, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Heart, Share2, Truck, RotateCcw, Shield, Star, Minus, Plus, ChevronRight, Check } from 'lucide-react';
 import { Reveal, ProductCard } from '../components/Layout';
-import { products } from '../lib/data';
+import { useDynamic } from '../lib/dynamicStore';
 import { useStore } from '../lib/store';
 import type { Product } from '../lib/types';
 
 export default function ProductDetailPage() {
   const { slug } = useParams<{ slug: string }>();
-  const product = products.find(p => p.slug === slug);
+  const { state: dynState, getProductBySlug } = useDynamic();
+  const product = getProductBySlug(slug || '');
   const { addToCart, toggleWishlist, state, formatPrice, showToast } = useStore();
 
   const [selectedColor, setSelectedColor] = useState(product?.colors[0] || '');
@@ -31,9 +32,9 @@ export default function ProductDetailPage() {
   }
 
   const isWished = state.wishlist.includes(product.id);
-  const selectedVariant = product.variants.find(v => v.color === selectedColor && v.size === selectedSize);
+  const selectedVariant = product.variants.find((v: any) => v.color === selectedColor && v.size === selectedSize);
   const isAvailable = selectedVariant?.isAvailable ?? false;
-  const relatedProducts = products.filter(p => p.id !== product.id && (p.category === product.category || p.collection === product.collection)).slice(0, 4);
+  const relatedProducts = dynState.products.filter((p: any) => p.id !== product.id && (p.category === product.category || p.collection === product.collection) && p.isPublished).slice(0, 4);
 
   const checkDelivery = () => {
     if (pincode.length === 6) {
@@ -234,7 +235,7 @@ export default function ProductDetailPage() {
         <section className="mt-16 lg:mt-24 pt-12 border-t border-[#AAA394]/20">
           <h2 className="text-xl font-semibold mb-8">You May Also Like</h2>
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
-            {relatedProducts.map((p, i) => <ProductCard key={p.id} product={p} index={i} />)}
+            {relatedProducts.map((p: any, i: number) => <ProductCard key={p.id} product={p} index={i} />)}
           </div>
         </section>
       )}

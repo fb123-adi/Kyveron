@@ -5,7 +5,7 @@ import { IMAGES } from '../lib/data';
 import { Mail, Phone, MessageCircle, Clock, Send } from 'lucide-react';
 import { useState } from 'react';
 import { useStore } from '../lib/store';
-import { products, journalPosts } from '../lib/data';
+import { useDynamic } from '../lib/dynamicStore';
 
 // ===== About Page =====
 export function AboutPage() {
@@ -158,6 +158,7 @@ export function ContactPage() {
 
 // ===== Journal Page =====
 export function JournalPage() {
+  const { state } = useDynamic();
   return (
     <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-16">
       <Reveal>
@@ -167,7 +168,7 @@ export function JournalPage() {
         </div>
       </Reveal>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
-        {journalPosts.map((post: any, i: number) => (
+        {state.journalPosts.map((post: any, i: number) => (
           <Reveal key={post.id} delay={i * 150}>
             <article className="group">
               <div className="aspect-[16/10] overflow-hidden rounded-sm mb-4">
@@ -231,17 +232,9 @@ export function ReturnsPage() {
 
 // ===== FAQ Page =====
 export function FAQPage() {
+  const { state } = useDynamic();
   const [openIndex, setOpenIndex] = useState<number | null>(null);
-  const faqs = [
-    { q: 'What is your shipping timeline?', a: 'Orders are processed within 1-2 business days. Delivery typically takes 3-5 business days for metro cities and 5-7 business days for other locations.' },
-    { q: 'Do you offer free shipping?', a: 'Yes, we offer free shipping on all orders above ₹999. For orders below this amount, a flat shipping fee of ₹99 applies.' },
-    { q: 'What payment methods do you accept?', a: 'We accept UPI (GPay, PhonePe, Paytm), credit/debit cards, net banking, wallets, and cash on delivery (COD available for select PIN codes).' },
-    { q: 'How do I track my order?', a: 'You can track your order using the "Track Order" page with your order number, or through the link sent to your email and SMS after dispatch.' },
-    { q: 'What is your return policy?', a: 'We offer a 7-day return window from the date of delivery. Items must be unused with original tags. Visit our Returns page for full details.' },
-    { q: 'How do I choose the right size?', a: 'Each product page has a detailed size guide with measurements in inches. If you are between sizes, we recommend sizing up for a relaxed fit.' },
-    { q: 'Can I change or cancel my order?', a: 'Orders can be modified or cancelled within 2 hours of placement by contacting our support team. Once an order is shipped, it cannot be cancelled but can be returned.' },
-    { q: 'Do you ship internationally?', a: 'Currently, we ship only within India. International shipping will be available soon. Sign up for our newsletter to be notified.' },
-  ];
+  const faqs = state.faqs.map(f => ({ q: f.question, a: f.answer }));
 
   return (
     <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-16">
@@ -361,144 +354,4 @@ export function LegalPage({ type }: { type: string }) {
   );
 }
 
-// ===== Admin Dashboard =====
-export function AdminPage() {
-  const { state, formatPrice } = useStore();
-  const [activeSection, setActiveSection] = useState('dashboard');
-
-  const stats = [
-    { label: 'Revenue (30d)', value: '₹4,82,500', change: '+12%' },
-    { label: 'Orders (30d)', value: '156', change: '+8%' },
-    { label: 'Avg. Order Value', value: '₹3,093', change: '+4%' },
-    { label: 'Products', value: products.length.toString(), change: '' },
-  ];
-
-  return (
-    <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <div className="flex items-center justify-between mb-8">
-        <div>
-          <h1 className="text-2xl font-semibold tracking-[-0.02em]">Admin Dashboard</h1>
-          <p className="text-sm text-[#AAA394]">Kyveron Management Console</p>
-        </div>
-        <div className="flex items-center gap-2">
-          <span className="px-2 py-1 bg-[#214C9A]/10 text-[#214C9A] text-xs font-medium rounded-sm">Super Admin</span>
-        </div>
-      </div>
-
-      {/* Navigation */}
-      <div className="flex gap-2 mb-8 overflow-x-auto no-scrollbar pb-2">
-        {['dashboard', 'products', 'orders', 'inventory', 'customers', 'discounts', 'content', 'analytics'].map(section => (
-          <button key={section} onClick={() => setActiveSection(section)} className={`px-4 py-2 text-sm font-medium rounded-sm whitespace-nowrap transition-colors ${activeSection === section ? 'bg-[#151515] text-white' : 'bg-white/60 text-[#303238] hover:bg-[#AAA394]/10'}`}>
-            {section.charAt(0).toUpperCase() + section.slice(1)}
-          </button>
-        ))}
-      </div>
-
-      {activeSection === 'dashboard' && (
-        <div className="space-y-6">
-          {/* Stats */}
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-            {stats.map((stat, i) => (
-              <div key={i} className="p-5 bg-white/60 rounded-sm border border-[#AAA394]/10">
-                <p className="text-xs text-[#AAA394] uppercase tracking-wider">{stat.label}</p>
-                <p className="text-2xl font-semibold mt-1">{stat.value}</p>
-                {stat.change && <p className="text-xs text-green-600 mt-1">{stat.change} vs last period</p>}
-              </div>
-            ))}
-          </div>
-
-          {/* Recent Orders */}
-          <div className="bg-white/60 rounded-sm border border-[#AAA394]/10 p-5">
-            <h2 className="text-sm font-semibold mb-4">Recent Orders</h2>
-            {state.orders.length === 0 ? (
-              <p className="text-sm text-[#AAA394] py-4 text-center">No orders yet. Complete a checkout to see orders here.</p>
-            ) : (
-              <div className="overflow-x-auto">
-                <table className="w-full text-sm">
-                  <thead>
-                    <tr className="border-b border-[#AAA394]/20">
-                      <th className="text-left py-2 font-medium text-[#AAA394]">Order</th>
-                      <th className="text-left py-2 font-medium text-[#AAA394]">Customer</th>
-                      <th className="text-left py-2 font-medium text-[#AAA394]">Status</th>
-                      <th className="text-left py-2 font-medium text-[#AAA394]">Total</th>
-                      <th className="text-left py-2 font-medium text-[#AAA394]">Date</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {state.orders.map(order => (
-                      <tr key={order.id} className="border-b border-[#AAA394]/10">
-                        <td className="py-3 font-medium">{order.orderNumber}</td>
-                        <td className="py-3 text-[#303238]">{order.email}</td>
-                        <td className="py-3"><span className="px-2 py-0.5 bg-green-100 text-green-800 text-xs rounded-sm capitalize">{order.status.replace('_', ' ')}</span></td>
-                        <td className="py-3 font-medium">{formatPrice(order.total)}</td>
-                        <td className="py-3 text-[#AAA394]">{new Date(order.createdAt).toLocaleDateString('en-IN')}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
-          </div>
-
-          {/* Low Stock Alert */}
-          <div className="bg-white/60 rounded-sm border border-[#AAA394]/10 p-5">
-            <h2 className="text-sm font-semibold mb-4">Low Stock Alerts</h2>
-            <div className="space-y-2">
-              {products.filter(p => p.stockTotal < 100).map(p => (
-                <div key={p.id} className="flex items-center justify-between py-2 border-b border-[#AAA394]/10 last:border-0">
-                  <span className="text-sm">{p.name}</span>
-                  <span className={`text-xs font-medium px-2 py-0.5 rounded-sm ${p.stockTotal < 70 ? 'bg-red-100 text-red-700' : 'bg-yellow-100 text-yellow-700'}`}>{p.stockTotal} units</span>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      )}
-
-      {activeSection === 'products' && (
-        <div className="bg-white/60 rounded-sm border border-[#AAA394]/10 p-5">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-sm font-semibold">Product Management</h2>
-            <button className="px-4 py-2 bg-[#151515] text-white text-xs font-medium rounded-sm hover:bg-[#303238] transition-colors">+ Add Product</button>
-          </div>
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="border-b border-[#AAA394]/20">
-                  <th className="text-left py-2 font-medium text-[#AAA394]">Product</th>
-                  <th className="text-left py-2 font-medium text-[#AAA394]">Category</th>
-                  <th className="text-left py-2 font-medium text-[#AAA394]">Price</th>
-                  <th className="text-left py-2 font-medium text-[#AAA394]">Stock</th>
-                  <th className="text-left py-2 font-medium text-[#AAA394]">Status</th>
-                </tr>
-              </thead>
-              <tbody>
-                {products.map(p => (
-                  <tr key={p.id} className="border-b border-[#AAA394]/10">
-                    <td className="py-3">
-                      <div className="flex items-center gap-3">
-                        <img src={p.images[0]?.url} alt={p.name} className="w-10 h-12 object-cover rounded-sm" />
-                        <span className="font-medium">{p.name}</span>
-                      </div>
-                    </td>
-                    <td className="py-3 text-[#303238] capitalize">{p.category.replace('-', ' ')}</td>
-                    <td className="py-3 font-medium">{formatPrice(p.basePrice)}</td>
-                    <td className="py-3">{p.stockTotal}</td>
-                    <td className="py-3"><span className="px-2 py-0.5 bg-green-100 text-green-800 text-xs rounded-sm">Published</span></td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      )}
-
-      {(activeSection === 'orders' || activeSection === 'inventory' || activeSection === 'customers' || activeSection === 'discounts' || activeSection === 'content' || activeSection === 'analytics') && (
-        <div className="bg-white/60 rounded-sm border border-[#AAA394]/10 p-8 text-center">
-          <p className="text-sm text-[#AAA394]">Admin {activeSection} module — connect to Supabase backend for full functionality.</p>
-          <p className="text-xs text-[#AAA394] mt-2">This section requires server-side integration with database, authentication, and role-based access control.</p>
-        </div>
-      )}
-    </div>
-  );
-}
+// Admin page moved to ./Admin.tsx

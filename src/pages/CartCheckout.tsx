@@ -4,19 +4,21 @@ import { motion } from 'framer-motion';
 import { Minus, Plus, Trash2, ArrowRight, Tag, ShoppingBag } from 'lucide-react';
 import { Reveal } from '../components/Layout';
 import { useStore } from '../lib/store';
+import { useDynamic } from '../lib/dynamicStore';
 
 export default function CartPage() {
   const { state, removeFromCart, updateQuantity, applyCoupon, formatPrice } = useStore();
+  const { validateCoupon } = useDynamic();
   const [couponCode, setCouponCode] = useState('');
   const [couponError, setCouponError] = useState('');
 
   const handleApplyCoupon = () => {
-    const validCodes = ['KYVERON10', 'FIRST500', 'PERF20'];
-    if (validCodes.includes(couponCode.toUpperCase())) {
-      applyCoupon(couponCode);
+    const result = validateCoupon(couponCode, state.cart.subtotal);
+    if (result.valid) {
+      applyCoupon(couponCode.toUpperCase());
       setCouponError('');
     } else {
-      setCouponError('Invalid coupon code');
+      setCouponError(result.message);
     }
   };
 

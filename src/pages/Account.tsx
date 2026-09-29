@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 import { Mail, Lock, User, Eye, EyeOff, Heart, Package, MapPin, Settings, LogOut, Trash2 } from 'lucide-react';
 import { Reveal, ProductCard } from '../components/Layout';
 import { useStore } from '../lib/store';
-import { products } from '../lib/data';
+import { useDynamic } from '../lib/dynamicStore';
 
 // ===== Login Page =====
 export function LoginPage() {
@@ -177,6 +177,7 @@ export function RegisterPage() {
 // ===== Account Dashboard =====
 export function AccountPage() {
   const { state, logout, formatPrice } = useStore();
+  const { state: dynState } = useDynamic();
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('orders');
 
@@ -275,7 +276,7 @@ export function AccountPage() {
                 </div>
               ) : (
                 <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
-                  {products.filter(p => state.wishlist.includes(p.id)).map((p, i) => <ProductCard key={p.id} product={p} index={i} />)}
+                  {dynState.products.filter((p: any) => state.wishlist.includes(p.id) && p.isPublished).map((p: any, i: number) => <ProductCard key={p.id} product={p} index={i} />)}
                 </div>
               )}
             </div>
@@ -328,7 +329,8 @@ export function AccountPage() {
 // ===== Wishlist Page =====
 export function WishlistPage() {
   const { state } = useStore();
-  const wishlistProducts = products.filter(p => state.wishlist.includes(p.id));
+  const { state: dynState } = useDynamic();
+  const wishlistProducts = dynState.products.filter((p: any) => state.wishlist.includes(p.id) && p.isPublished);
 
   return (
     <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 py-8 lg:py-12">

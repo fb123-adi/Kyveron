@@ -3,6 +3,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ShoppingBag, Search, User, Heart, Menu, X, ChevronDown, Minus, Plus, Trash2, ArrowRight, Star, Check, AlertCircle, Info, Eye } from 'lucide-react';
 import { useStore } from '../lib/store';
+import { useDynamic } from '../lib/dynamicStore';
 import { IMAGES } from '../lib/data';
 
 // ===== Header =====
@@ -180,12 +181,13 @@ function CartDrawer({ isOpen, onClose }: { isOpen: boolean; onClose: () => void 
 
 // ===== Footer =====
 export function Footer() {
+  const { state: dynState } = useDynamic();
   return (
     <footer className="bg-[#151515] text-[#F2EEE6]">
       <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 py-16">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10">
           <div>
-            <h3 className="text-lg font-semibold tracking-[-0.02em] mb-4">KYVERON</h3>
+            <h3 className="text-lg font-semibold tracking-[-0.02em] mb-4">{dynState.settings.brandName}</h3>
             <p className="text-sm text-[#AAA394] leading-relaxed">Premium Indian apparel. Luxurious daily wear and performance sportswear crafted for modern life.</p>
             <div className="flex gap-4 mt-6">
               <a href="#" className="text-[#AAA394] hover:text-[#F2EEE6] transition-colors text-sm">Instagram</a>
@@ -222,7 +224,7 @@ export function Footer() {
           </div>
         </div>
         <div className="border-t border-[#303238] mt-12 pt-8 flex flex-col sm:flex-row justify-between items-center gap-4">
-          <p className="text-xs text-[#AAA394]">© 2024 Kyveron. All rights reserved.</p>
+          <p className="text-xs text-[#AAA394]">© 2024 {dynState.settings.brandName}. All rights reserved.</p>
           <p className="text-xs text-[#AAA394]">Crafted with intention in India.</p>
         </div>
       </div>

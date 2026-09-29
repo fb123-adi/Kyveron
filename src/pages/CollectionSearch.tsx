@@ -3,13 +3,14 @@ import { useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { Search as SearchIcon, X, ChevronRight } from 'lucide-react';
 import { Reveal, ProductCard } from '../components/Layout';
-import { products, collections } from '../lib/data';
+import { useDynamic } from '../lib/dynamicStore';
 
 // ===== Collection Page =====
 export function CollectionPage() {
   const { slug } = useParams<{ slug: string }>();
-  const collection = collections.find(c => c.slug === slug);
-  const collectionProducts = products.filter(p => p.collection === slug);
+  const { state, getCollectionBySlug, getProductsByCollection } = useDynamic();
+  const collection = getCollectionBySlug(slug || '');
+  const collectionProducts = getProductsByCollection(slug || '').filter(p => p.isPublished);
 
   if (!collection) {
     return (
@@ -56,6 +57,7 @@ export function CollectionPage() {
 
 // ===== Search Page =====
 export function SearchPage() {
+  const { state } = useDynamic();
   const [searchParams, setSearchParams] = useSearchParams();
   const query = searchParams.get('q') || '';
   const [inputValue, setInputValue] = useState(query);
@@ -63,19 +65,21 @@ export function SearchPage() {
   const results = useMemo(() => {
     if (!query) return [];
     const q = query.toLowerCase();
-    return products.filter(p =>
-      p.name.toLowerCase().includes(q) ||
-      p.description.toLowerCase().includes(q) ||
-      p.category.toLowerCase().includes(q) ||
-      p.tags.some(t => t.includes(q))
+    return state.products.filter((p: any) =>
+      p.isPublished && (
+        p.name.toLowerCase().includes(q) ||
+        p.description.toLowerCase().includes(q) ||
+        p.category.toLowerCase().includes(q) ||
+        p.tags.some((t: string) => t.includes(q))
+      )
     );
-  }, [query]);
+  }, [query, state.products]);
 
   const collectionResults = useMemo(() => {
     if (!query) return [];
     const q = query.toLowerCase();
-    return collections.filter(c => c.name.toLowerCase().includes(q) || c.description.toLowerCase().includes(q));
-  }, [query]);
+    return state.collections.filter((c: any) => c.name.toLowerCase().includes(q) || c.description.toLowerCase().includes(q));
+  }, [query, state.collections]);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();

@@ -3,7 +3,7 @@ import { useSearchParams } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { SlidersHorizontal, X, ChevronDown, Grid3X3, LayoutGrid } from 'lucide-react';
 import { Reveal, ProductCard, ProductCardSkeleton } from '../components/Layout';
-import { products } from '../lib/data';
+import { useDynamic } from '../lib/dynamicStore';
 import type { Category } from '../lib/types';
 
 const CATEGORIES: { value: Category | 'all'; label: string }[] = [
@@ -27,6 +27,8 @@ const SIZES = ['XS', 'S', 'M', 'L', 'XL', 'XXL'];
 const COLORS = ['Black', 'White', 'Navy', 'Charcoal', 'Stone', 'Cobalt Blue'];
 
 export default function ShopPage() {
+  const { state } = useDynamic();
+  const products = state.products.filter(p => p.isPublished);
   const [searchParams] = useSearchParams();
   const [category, setCategory] = useState<Category | 'all'>('all');
   const [sort, setSort] = useState('featured');
@@ -43,8 +45,8 @@ export default function ShopPage() {
     let result = [...products];
     if (showNewOnly) result = result.filter(p => p.isNew);
     if (category !== 'all') result = result.filter(p => p.category === category);
-    if (selectedSizes.length > 0) result = result.filter(p => p.sizes.some(s => selectedSizes.includes(s)));
-    if (selectedColors.length > 0) result = result.filter(p => p.colors.some(c => selectedColors.includes(c)));
+    if (selectedSizes.length > 0) result = result.filter(p => p.sizes.some((s: string) => selectedSizes.includes(s)));
+    if (selectedColors.length > 0) result = result.filter(p => p.colors.some((c: string) => selectedColors.includes(c)));
     result = result.filter(p => p.basePrice >= priceRange[0] && p.basePrice <= priceRange[1]);
 
     switch (sort) {

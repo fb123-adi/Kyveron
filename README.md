@@ -508,6 +508,47 @@ NEXT_PUBLIC_GA_ID=
 NEXT_PUBLIC_META_PIXEL_ID=
 ```
 
+## Admin Panel & Dynamic Content
+
+### Admin Access
+- **URL:** `/admin`
+- **Email:** `admin@kyveron.in`
+- **Password:** `Kyveron@Admin2024!`
+
+### What You Can Change
+The entire website is fully dynamic. Through the admin panel, you can edit:
+
+| Section | What You Can Edit |
+|---------|-------------------|
+| **Products** | Add, edit, delete products. Change names, prices, images, descriptions, categories, collections, sizes, colors, stock, SEO metadata, featured/new status |
+| **Collections** | Add, edit, delete collections. Change names, descriptions, banner images |
+| **Homepage** | Edit hero title/subtitle/image, featured section text, performance banner, brand story, newsletter section |
+| **Journal** | Add, edit, delete blog posts with titles, content, cover images, tags |
+| **FAQs** | Add, edit, delete FAQ items |
+| **Reviews** | Add customer reviews, delete reviews |
+| **Coupons** | Add, edit, delete discount coupons (percentage/fixed, min cart value, dates, usage limits) |
+| **Settings** | Brand name, support email/phone, WhatsApp, shipping thresholds, return window, GST rate, currency |
+
+### Data Persistence
+- All changes are saved to browser `localStorage` automatically
+- Data persists across page refreshes and browser sessions
+- Use "Reset All Data" in the dashboard to restore defaults
+- In production, connect to Supabase for server-side persistence
+
+### Product Image Management
+- Each product supports multiple images (front, back, detail, lifestyle)
+- Add images by URL (paste any image URL)
+- Edit alt text for accessibility
+- Reorder images
+- Remove unwanted images
+- Default product images are pre-loaded with premium photography
+
+### Price Management
+- Prices are stored in minor units (paise) for precision
+- Admin UI shows prices in rupees for easy editing
+- Compare-at prices for showing discounts
+- All prices update across the site immediately
+
 ## Brand Identity
 
 ### Color System

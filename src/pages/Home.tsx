@@ -2,29 +2,30 @@ import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { ArrowRight, Truck, Shield, RotateCcw, Star } from 'lucide-react';
 import { Reveal, ProductCard } from '../components/Layout';
-import { products, IMAGES } from '../lib/data';
-import { useStore } from '../lib/store';
+import { useDynamic } from '../lib/dynamicStore';
 
 export default function HomePage() {
-  const { formatPrice } = useStore();
-  const featuredProducts = products.filter(p => p.isFeatured).slice(0, 4);
+  const { state, formatPrice } = useDynamic();
+  const { homepage, products, reviews } = state;
+  const featuredProducts = products.filter(p => p.isFeatured && p.isPublished).slice(0, 4);
+  const newProducts = products.filter(p => p.isNew && p.isPublished);
 
   return (
     <div>
       {/* Hero Section */}
       <section className="relative h-[90vh] min-h-[600px] max-h-[900px] overflow-hidden">
         <motion.div initial={{ scale: 1.1, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] }} className="absolute inset-0">
-          <img src={IMAGES.hero} alt="Kyveron premium sportswear collection - model in black performance tee and charcoal joggers" className="w-full h-full object-cover" />
+          <img src={homepage.heroImage} alt="Kyveron premium sportswear collection" className="w-full h-full object-cover" />
           <div className="absolute inset-0 bg-gradient-to-r from-[#151515]/70 via-[#151515]/30 to-transparent" />
         </motion.div>
         <div className="relative h-full max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 flex items-center">
           <div className="max-w-xl">
-            <motion.p initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3, duration: 0.6 }} className="text-[#AAA394] text-sm font-medium uppercase tracking-wider mb-4">Premium Indian Apparel</motion.p>
-            <motion.h1 initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5, duration: 0.7, ease: [0.16, 1, 0.3, 1] }} className="text-4xl sm:text-5xl lg:text-6xl font-semibold text-white leading-[1.1] tracking-[-0.02em] mb-6">
-              Engineered for<br />those who move<br />with intention.
+            <motion.p initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3, duration: 0.6 }} className="text-[#AAA394] text-sm font-medium uppercase tracking-wider mb-4">{homepage.heroBadge}</motion.p>
+            <motion.h1 initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5, duration: 0.7, ease: [0.16, 1, 0.3, 1] }} className="text-4xl sm:text-5xl lg:text-6xl font-semibold text-white leading-[1.1] tracking-[-0.02em] mb-6 whitespace-pre-line">
+              {homepage.heroTitle}
             </motion.h1>
             <motion.p initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.7, duration: 0.6 }} className="text-[#AAA394] text-base lg:text-lg leading-relaxed mb-8 max-w-md">
-              Luxurious daily wear and performance sportswear. Premium fabrics, precise construction, considered design.
+              {homepage.heroSubtitle}
             </motion.p>
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.9, duration: 0.6 }} className="flex flex-wrap gap-4">
               <Link to="/shop" className="inline-flex items-center gap-2 px-7 py-3.5 bg-white text-[#151515] text-sm font-semibold rounded-sm hover:bg-[#F2EEE6] transition-colors duration-200">
@@ -74,31 +75,28 @@ export default function HomePage() {
       </section>
 
       {/* Featured Products */}
-      <section className="py-16 lg:py-24">
-        <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8">
-          <Reveal>
-            <div className="flex items-end justify-between mb-10">
-              <div>
-                <p className="text-xs font-semibold uppercase tracking-wider text-[#214C9A] mb-2">Curated Selection</p>
-                <h2 className="text-2xl lg:text-3xl font-semibold tracking-[-0.02em]">Featured Products</h2>
+      {featuredProducts.length > 0 && (
+        <section className="py-16 lg:py-24">
+          <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8">
+            <Reveal>
+              <div className="flex items-end justify-between mb-10">
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-wider text-[#214C9A] mb-2">{homepage.featuredSubtitle}</p>
+                  <h2 className="text-2xl lg:text-3xl font-semibold tracking-[-0.02em]">{homepage.featuredTitle}</h2>
+                </div>
+                <Link to="/shop" className="hidden sm:inline-flex items-center gap-1.5 text-sm font-medium text-[#303238] hover:text-[#214C9A] transition-colors">
+                  View All <ArrowRight size={14} />
+                </Link>
               </div>
-              <Link to="/shop" className="hidden sm:inline-flex items-center gap-1.5 text-sm font-medium text-[#303238] hover:text-[#214C9A] transition-colors">
-                View All <ArrowRight size={14} />
-              </Link>
+            </Reveal>
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
+              {featuredProducts.map((product, i) => (
+                <ProductCard key={product.id} product={product} index={i} />
+              ))}
             </div>
-          </Reveal>
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
-            {featuredProducts.map((product, i) => (
-              <ProductCard key={product.id} product={product} index={i} />
-            ))}
           </div>
-          <div className="mt-8 text-center sm:hidden">
-            <Link to="/shop" className="inline-flex items-center gap-1.5 text-sm font-medium text-[#303238] hover:text-[#214C9A] transition-colors">
-              View All Products <ArrowRight size={14} />
-            </Link>
-          </div>
-        </div>
-      </section>
+        </section>
+      )}
 
       {/* Editorial Banner */}
       <section className="py-16 lg:py-24 bg-[#151515]">
@@ -106,17 +104,17 @@ export default function HomePage() {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16 items-center">
             <Reveal>
               <div className="aspect-[4/5] overflow-hidden rounded-sm">
-                <img src={IMAGES.lifestyle} alt="Model wearing Kyveron navy track jacket in modern urban environment" className="w-full h-full object-cover" loading="lazy" />
+                <img src={homepage.performanceImage} alt="Kyveron performance collection" className="w-full h-full object-cover" loading="lazy" />
               </div>
             </Reveal>
             <Reveal delay={200}>
               <div className="lg:pl-8">
-                <p className="text-xs font-semibold uppercase tracking-wider text-[#214C9A] mb-4">Core Performance</p>
-                <h2 className="text-3xl lg:text-4xl font-semibold text-white tracking-[-0.02em] mb-6 leading-tight">
-                  Built for movement.<br />Refined for life.
+                <p className="text-xs font-semibold uppercase tracking-wider text-[#214C9A] mb-4">{homepage.performanceSubtitle}</p>
+                <h2 className="text-3xl lg:text-4xl font-semibold text-white tracking-[-0.02em] mb-6 leading-tight whitespace-pre-line">
+                  {homepage.performanceTitle}
                 </h2>
                 <p className="text-[#AAA394] leading-relaxed mb-8 max-w-md">
-                  Technical fabrics meet considered design. Every garment in our Performance collection is engineered to move with you—whether you are training or navigating the city.
+                  {homepage.performanceDescription}
                 </p>
                 <Link to="/collections/core-performance" className="inline-flex items-center gap-2 px-7 py-3.5 bg-white text-[#151515] text-sm font-semibold rounded-sm hover:bg-[#F2EEE6] transition-colors duration-200">
                   Explore Collection <ArrowRight size={16} />
@@ -133,16 +131,13 @@ export default function HomePage() {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16 items-center">
             <Reveal delay={200} className="order-2 lg:order-1">
               <div>
-                <p className="text-xs font-semibold uppercase tracking-wider text-[#214C9A] mb-4">Our Philosophy</p>
-                <h2 className="text-3xl lg:text-4xl font-semibold tracking-[-0.02em] mb-6 leading-tight">
-                  Every detail,<br />considered.
+                <p className="text-xs font-semibold uppercase tracking-wider text-[#214C9A] mb-4">{homepage.storySubtitle}</p>
+                <h2 className="text-3xl lg:text-4xl font-semibold tracking-[-0.02em] mb-6 leading-tight whitespace-pre-line">
+                  {homepage.storyTitle}
                 </h2>
-                <p className="text-[#303238] leading-relaxed mb-6">
-                  At Kyveron, we believe premium apparel is not about excess—it is about intention. Every fabric is selected for its performance and hand-feel. Every seam is placed with purpose. Every garment is designed to last.
-                </p>
-                <p className="text-[#303238] leading-relaxed mb-8">
-                  We source the finest materials, test rigorously, and construct with care. The result is apparel that performs when you need it to and feels considered when you wear it.
-                </p>
+                {homepage.storyParagraphs.map((para, i) => (
+                  <p key={i} className="text-[#303238] leading-relaxed mb-6">{para}</p>
+                ))}
                 <Link to="/about" className="inline-flex items-center gap-2 text-sm font-medium text-[#151515] hover:text-[#214C9A] transition-colors">
                   Our Story <ArrowRight size={14} />
                 </Link>
@@ -151,10 +146,10 @@ export default function HomePage() {
             <Reveal className="order-1 lg:order-2">
               <div className="grid grid-cols-2 gap-4">
                 <div className="aspect-square overflow-hidden rounded-sm">
-                  <img src={IMAGES.brandStory} alt="Premium fabric close-up showing quality craftsmanship and material texture" className="w-full h-full object-cover" loading="lazy" />
+                  <img src={homepage.performanceImage} alt="Premium fabric craftsmanship" className="w-full h-full object-cover" loading="lazy" />
                 </div>
                 <div className="aspect-square overflow-hidden rounded-sm mt-8">
-                  <img src={IMAGES.blackTee.detail} alt="Close-up of premium cotton fabric weave and stitching detail" className="w-full h-full object-cover" loading="lazy" />
+                  <img src={products[0]?.images[1]?.url || products[0]?.images[0]?.url} alt="Material detail" className="w-full h-full object-cover" loading="lazy" />
                 </div>
               </div>
             </Reveal>
@@ -163,66 +158,66 @@ export default function HomePage() {
       </section>
 
       {/* New Arrivals */}
-      <section className="py-16 lg:py-24 bg-white/40">
-        <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8">
-          <Reveal>
-            <div className="flex items-end justify-between mb-10">
-              <div>
-                <p className="text-xs font-semibold uppercase tracking-wider text-[#214C9A] mb-2">Just Dropped</p>
-                <h2 className="text-2xl lg:text-3xl font-semibold tracking-[-0.02em]">New Arrivals</h2>
+      {newProducts.length > 0 && (
+        <section className="py-16 lg:py-24 bg-white/40">
+          <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8">
+            <Reveal>
+              <div className="flex items-end justify-between mb-10">
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-wider text-[#214C9A] mb-2">Just Dropped</p>
+                  <h2 className="text-2xl lg:text-3xl font-semibold tracking-[-0.02em]">New Arrivals</h2>
+                </div>
+                <Link to="/shop?new=true" className="hidden sm:inline-flex items-center gap-1.5 text-sm font-medium text-[#303238] hover:text-[#214C9A] transition-colors">
+                  View All <ArrowRight size={14} />
+                </Link>
               </div>
-              <Link to="/shop?new=true" className="hidden sm:inline-flex items-center gap-1.5 text-sm font-medium text-[#303238] hover:text-[#214C9A] transition-colors">
-                View All <ArrowRight size={14} />
-              </Link>
+            </Reveal>
+            <div className="grid grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6">
+              {newProducts.slice(0, 3).map((product, i) => (
+                <ProductCard key={product.id} product={product} index={i} />
+              ))}
             </div>
-          </Reveal>
-          <div className="grid grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6">
-            {products.filter(p => p.isNew).map((product, i) => (
-              <ProductCard key={product.id} product={product} index={i} />
-            ))}
           </div>
-        </div>
-      </section>
+        </section>
+      )}
 
       {/* Reviews */}
-      <section className="py-16 lg:py-24">
-        <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8">
-          <Reveal>
-            <div className="text-center mb-12">
-              <p className="text-xs font-semibold uppercase tracking-wider text-[#214C9A] mb-2">What People Say</p>
-              <h2 className="text-2xl lg:text-3xl font-semibold tracking-[-0.02em]">Customer Reviews</h2>
+      {reviews.length > 0 && (
+        <section className="py-16 lg:py-24">
+          <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8">
+            <Reveal>
+              <div className="text-center mb-12">
+                <p className="text-xs font-semibold uppercase tracking-wider text-[#214C9A] mb-2">What People Say</p>
+                <h2 className="text-2xl lg:text-3xl font-semibold tracking-[-0.02em]">Customer Reviews</h2>
+              </div>
+            </Reveal>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {reviews.slice(0, 3).map((review, i) => (
+                <Reveal key={review.id} delay={i * 120}>
+                  <div className="p-6 bg-white/60 rounded-sm border border-[#AAA394]/10">
+                    <div className="flex gap-0.5 mb-3">
+                      {Array.from({ length: review.rating }).map((_, j) => <Star key={j} size={14} className="fill-[#151515] text-[#151515]" />)}
+                    </div>
+                    <p className="text-sm text-[#303238] leading-relaxed mb-4">"{review.body}"</p>
+                    <div className="flex items-center justify-between">
+                      <p className="text-xs font-medium">{review.userName}</p>
+                      <p className="text-xs text-[#AAA394]">{review.title}</p>
+                    </div>
+                  </div>
+                </Reveal>
+              ))}
             </div>
-          </Reveal>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {[
-              { name: 'Arjun M.', text: 'The fabric quality is exceptional. Fits perfectly and holds shape after multiple washes. Best tee I own.', rating: 5, product: 'Obsidian Performance Tee' },
-              { name: 'Rahul K.', text: 'The brushed interior is incredibly comfortable. Tapered fit looks sharp. These have become my everyday pants.', rating: 5, product: 'Graphite Tailored Jogger' },
-              { name: 'Vikram T.', text: '380 GSM fleece is no joke. This hoodie has real substance. The double-layered hood sits perfectly.', rating: 5, product: 'Stone Heritage Hoodie' },
-            ].map((review, i) => (
-              <Reveal key={i} delay={i * 120}>
-                <div className="p-6 bg-white/60 rounded-sm border border-[#AAA394]/10">
-                  <div className="flex gap-0.5 mb-3">
-                    {Array.from({ length: review.rating }).map((_, j) => <Star key={j} size={14} className="fill-[#151515] text-[#151515]" />)}
-                  </div>
-                  <p className="text-sm text-[#303238] leading-relaxed mb-4">"{review.text}"</p>
-                  <div className="flex items-center justify-between">
-                    <p className="text-xs font-medium">{review.name}</p>
-                    <p className="text-xs text-[#AAA394]">{review.product}</p>
-                  </div>
-                </div>
-              </Reveal>
-            ))}
           </div>
-        </div>
-      </section>
+        </section>
+      )}
 
       {/* Newsletter */}
       <section className="py-16 lg:py-24 bg-[#151515]">
         <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8">
           <Reveal>
             <div className="max-w-lg mx-auto text-center">
-              <h2 className="text-2xl lg:text-3xl font-semibold text-white tracking-[-0.02em] mb-4">Stay in the loop</h2>
-              <p className="text-[#AAA394] text-sm mb-8">Be the first to know about new collections, exclusive offers, and stories from our workshop.</p>
+              <h2 className="text-2xl lg:text-3xl font-semibold text-white tracking-[-0.02em] mb-4">{homepage.newsletterTitle}</h2>
+              <p className="text-[#AAA394] text-sm mb-8">{homepage.newsletterSubtitle}</p>
               <form onSubmit={(e) => e.preventDefault()} className="flex gap-3">
                 <input type="email" placeholder="Your email address" className="flex-1 px-4 py-3 bg-[#303238] border border-[#303238] text-white text-sm rounded-sm placeholder:text-[#AAA394] focus:border-[#AAA394] focus:outline-none transition-colors" />
                 <button type="submit" className="px-6 py-3 bg-white text-[#151515] text-sm font-semibold rounded-sm hover:bg-[#F2EEE6] transition-colors">Subscribe</button>
